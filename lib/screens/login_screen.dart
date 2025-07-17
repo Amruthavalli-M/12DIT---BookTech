@@ -10,54 +10,44 @@ class LoginScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFEDEDED),
-      body: Center(
-        child: Container(
-          width: width < 800 ? width * 0.9 : 800,
-          height: 500,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(32),
-            gradient: const LinearGradient(
-              colors: [Color(0xFFE8DAEF), Color(0xFFE3F2FD)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: width < 600
-              ? _buildSinglePanel(context)
-              : Row(
-                  children: [
-                    // Left image panel
-                    Expanded(
-                      child: Image.asset(
-                        'assets/illustration.png',
-                        fit: BoxFit.contain,
-                      ),
+      body: width < 600
+          ? const Center(child: _LoginForm()) // Mobile layout
+          : Row( // Wide layout
+              children: [
+                // Left side: Image
+                Expanded(
+                  child: Container(
+                    color: Colors.white,
+                    child: Image.asset(
+                      'assets/illustration.png',
+                      fit: BoxFit.contain,
                     ),
-                    const SizedBox(width: 32),
-                    // Right login panel
-                    const Expanded(child: LoginForm()),
-                  ],
+                  ),
                 ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildSinglePanel(BuildContext context) {
-    return const Center(
-      child: LoginForm(),
+                // Right side: Login form
+                Expanded(
+                  child: Center(
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: const _LoginForm(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
 
-class LoginForm extends StatelessWidget {
-  const LoginForm({super.key});
+class _LoginForm extends StatelessWidget {
+  const _LoginForm();
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           'Login',
@@ -78,7 +68,9 @@ class LoginForm extends StatelessWidget {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.person),
             labelText: 'Username',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -89,7 +81,9 @@ class LoginForm extends StatelessWidget {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.lock),
             labelText: 'Password',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -106,8 +100,13 @@ class LoginForm extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text('Login',
-              style: GoogleFonts.poppins(fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0)),),
+            child: Text(
+              'Login',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ],
