@@ -1,0 +1,21 @@
+BEGIN LoginScreen
+  SHOW email input field
+  SHOW password input field
+  SHOW login button (disabled by default)
+
+  IF user types in both email AND password THEN
+    ENABLE login button
+
+  WHEN login button is pressed:
+    DISPLAY loading indicator
+    SEND email and password to backend
+
+    IF login is successful THEN
+      GET user role (student, teacher, leader)
+      REDIRECT to correct dashboard
+
+    ELSE
+      SHOW error message (e.g. "Wrong email or password")
+      CLEAR password field
+
+END LoginScreen

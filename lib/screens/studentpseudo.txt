@@ -1,0 +1,54 @@
+FUNCTION loadStudentDashboard(studentID)
+    allEvents = fetchAllEvents() // includes assemblies + open events
+    techNeededEvents = filterEventsNeedingVolunteers(allEvents)
+    
+    assignedAssemblies = fetchAssembliesFor(studentID)
+    volunteeredEvents = fetchVolunteeredEvents(studentID)
+
+    notifications = generateStudentReminders(studentID)
+
+    DISPLAY allEvents IN "All Events" section
+    DISPLAY techNeededEvents IN "Events Needing Tech" sidebar
+    DISPLAY assignedAssemblies + volunteeredEvents IN "My Schedule" section
+    DISPLAY notifications IN "Notifications" panel
+END FUNCTION
+
+FUNCTION volunteerForEvent(studentID, eventID)
+    IF studentAlreadyVolunteered(studentID, eventID) THEN
+        SHOW "You’ve already volunteered for this event"
+    ELSE
+        ADD studentID TO event.volunteers
+        NOTIFY leader OF new volunteer
+        SHOW "Thanks for volunteering!"
+    END IF
+END FUNCTION
+
+FUNCTION unvolunteerFromEvent(studentID, eventID)
+    IF deadlineHasPassed(eventID) THEN
+        SHOW "Too late to un-volunteer"
+    ELSE
+        REMOVE studentID FROM event.volunteers
+        NOTIFY leader OF withdrawal
+        SHOW "You’ve unvolunteered from this event"
+    END IF
+END FUNCTION
+
+FUNCTION generateStudentReminders(studentID)
+    reminders = []
+    assemblies = fetchAssembliesFor(studentID)
+    events = fetchVolunteeredEvents(studentID)
+
+    FOR EACH assembly IN assemblies DO
+        IF assembly.date IS withinNextDay THEN
+            ADD "Reminder: Assembly tomorrow at [time]" TO reminders
+        END IF
+    END FOR
+
+    FOR EACH event IN events DO
+        IF event.date IS withinNextDay THEN
+            ADD "Reminder: [event.name] tomorrow" TO reminders
+        END IF
+    END FOR
+
+    RETURN reminders
+END FUNCTION
