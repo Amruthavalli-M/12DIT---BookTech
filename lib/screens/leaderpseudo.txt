@@ -1,0 +1,82 @@
+// Leader Dashboard Main Function
+FUNCTION loadLeaderDashboard(leaderID)
+    DISPLAY SECTION: "All Events" WITH fetchAllEvents()
+    DISPLAY SECTION: "My Events & Assemblies" WITH fetchLeaderEvents(leaderID)
+    DISPLAY SECTION: "Assign Techs to Assemblies" WITH fetchUnassignedAssemblies()
+    DISPLAY SECTION: "Notifications" WITH fetchNotifications(leaderID)
+    DISPLAY SECTION: "Booking Requests" WITH fetchPendingBookings()
+END FUNCTION
+
+
+// SECTION: All Events
+FUNCTION fetchAllEvents()
+    events = QUERY database FOR all events ORDER BY date
+    RETURN events
+END FUNCTION
+
+
+// SECTION: My Events & Assemblies
+FUNCTION fetchLeaderEvents(leaderID)
+    myEvents = QUERY database FOR events WHERE leaderID == currentUser.id
+    myAssemblies = QUERY database FOR assemblies WHERE assignedLeaderID == currentUser.id
+    RETURN myEvents + myAssemblies
+END FUNCTION
+
+
+// SECTION: Assign Techs to Assemblies
+FUNCTION fetchUnassignedAssemblies()
+    assemblies = QUERY database FOR assemblies WHERE assignedStudentID == null
+    RETURN assemblies
+END FUNCTION
+
+FUNCTION assignStudentToAssembly(assemblyID, studentID)
+    UPDATE assemblies SET assignedStudentID = studentID WHERE id == assemblyID
+    SEND notification TO studentID WITH message: 
+        "You have been assigned to an Assembly on [Date]."
+    DISPLAY "Student assigned successfully."
+END FUNCTION
+
+
+// SECTION: Notifications
+FUNCTION fetchNotifications(leaderID)
+    notifications = QUERY database FOR notifications 
+                    WHERE receiverID == leaderID 
+                    ORDER BY timestamp DESC
+    RETURN notifications
+END FUNCTION
+
+FUNCTION markNotificationAsRead(notificationID)
+    UPDATE notifications SET isRead = true WHERE id == notificationID
+END FUNCTION
+
+
+// SECTION: Booking Requests (approve/decline teacher bookings)
+FUNCTION fetchPendingBookings()
+    bookings = QUERY database FOR bookings WHERE status == "Pending"
+    RETURN bookings
+END FUNCTION
+
+FUNCTION approveBooking(bookingID)
+    UPDATE bookings SET status = "Confirmed" WHERE id == bookingID
+    SEND notification TO booking.teacherID WITH message: 
+        "Your booking request has been approved."
+    DISPLAY "Booking approved successfully."
+END FUNCTION
+
+FUNCTION declineBooking(bookingID)
+    UPDATE bookings SET status = "Declined" WHERE id == bookingID
+    SEND notification TO booking.teacherID WITH message: 
+        "Your booking request has been declined."
+    DISPLAY "Booking declined."
+END FUNCTION
+
+
+// Utility: Send notification
+FUNCTION sendNotification(receiverID, message)
+    CREATE newNotification:
+        receiverID: receiverID
+        message: message
+        timestamp: current time
+        isRead: false
+    SAVE newNotification TO database
+END FUNCTION

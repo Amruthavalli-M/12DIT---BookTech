@@ -1,0 +1,33 @@
+FUNCTION loadTeacherDashboard(teacherID)
+    DISPLAY bookingForm IN "Book Technical Support" section
+    DISPLAY fetchAllEvents() IN "All Events" section
+    DISPLAY fetchBookingNotifications(teacherID) IN "Notifications" section
+END FUNCTION
+
+FUNCTION submitBookingForm(teacherID, formData)
+    IF formData IS valid THEN
+        newBooking = CREATE bookingRecord(formData, teacherID)
+        SAVE newBooking TO database
+        SEND notification TO leader ABOUT new request
+        SHOW "Booking submitted successfully"
+    ELSE
+        SHOW "Please complete all required fields"
+    END IF
+END FUNCTION
+
+FUNCTION fetchBookingNotifications(teacherID)
+    bookings = fetchBookingsBy(teacherID)
+    notifications = []
+
+    FOR EACH booking IN bookings DO
+        IF booking.status == "Pending" THEN
+            ADD "Booking for [booking.eventName] is pending" TO notifications
+        ELSE IF booking.status == "Confirmed" THEN
+            ADD "Booking for [booking.eventName] is confirmed. Assigned Tech: [booking.assignedTech]" TO notifications
+        ELSE IF booking.status == "Declined" THEN
+            ADD "Booking for [booking.eventName] was declined" TO notifications
+        END IF
+    END FOR
+
+    RETURN notifications
+END FUNCTION
