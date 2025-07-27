@@ -9,22 +9,48 @@ class StudentDashboard extends StatelessWidget {
 
     return Scaffold(
       drawer: isMobile ? const DrawerMenu() : null,
-      appBar: AppBar(
-        title: const Text("Student Dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
-          ),
-        ],
-      ),
       body: Row(
         children: [
           if (!isMobile) const Sidebar(),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: isMobile ? const MobileLayout() : const DesktopLayout(),
+            child: Column(
+              children: [
+                // Top bar (title) only for desktop
+                if (!isMobile)
+                  Container(
+                    height: 60,
+                    color: Colors.purple,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      "Student Dashboard",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                // AppBar alternative for mobile
+                if (isMobile)
+                  AppBar(
+                    title: Row(
+                      children: const [
+                        Icon(Icons.light_mode),
+                        SizedBox(width: 8),
+                        Text("Student Dashboard"),
+                      ],
+                    ),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: isMobile
+                        ? const MobileLayout()
+                        : const DesktopLayout(),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -43,20 +69,24 @@ class Sidebar extends StatelessWidget {
       color: Colors.grey[200],
       child: Column(
         children: [
-          const SizedBox(height: 30),
-          const Icon(Icons.light_mode, size: 60), // placeholder for logo
+          Container(
+            height: 60,
+            color: Colors.purple,
+            alignment: Alignment.center,
+            child: const Icon(Icons.light_mode, size: 40, color: Colors.white),
+          ),
           const SizedBox(height: 20),
-          menuItem(Icons.home, "Home"),
-          menuItem(Icons.event, "All Events"),
-          menuItem(Icons.person, "My Profile"),
-          menuItem(Icons.notifications, "Notifications"),
-          menuItem(Icons.logout, "Signout"),
+          _menuItem(Icons.home, "Home"),
+          _menuItem(Icons.event, "All Events"),
+          _menuItem(Icons.person, "My Profile"),
+          _menuItem(Icons.notifications, "Notifications"),
+          _menuItem(Icons.logout, "Signout"),
         ],
       ),
     );
   }
 
-  Widget menuItem(IconData icon, String label) {
+  Widget _menuItem(IconData icon, String label) {
     return ListTile(
       leading: Icon(icon),
       title: Text(label),
@@ -74,15 +104,13 @@ class DrawerMenu extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
-            child: Text("Menu", style: TextStyle(color: Colors.white)),
+          Container(
+            height: 120,
+            color: Colors.purple,
+            alignment: Alignment.center,
+            child: const Icon(Icons.light_mode, size: 50, color: Colors.white),
           ),
-          Sidebar().menuItem(Icons.home, "Home"),
-          Sidebar().menuItem(Icons.event, "All Events"),
-          Sidebar().menuItem(Icons.person, "My Profile"),
-          Sidebar().menuItem(Icons.notifications, "Notifications"),
-          Sidebar().menuItem(Icons.logout, "Signout"),
+          const Sidebar(), // Reuses the sidebar content
         ],
       ),
     );
@@ -96,6 +124,7 @@ class DesktopLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Top half: My Events + Alerts
         Expanded(
           child: Row(
             children: [
@@ -112,8 +141,15 @@ class DesktopLayout extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+        // Bottom half: Volunteer full width
         Expanded(
-          child: dashboardCard("Volunteer"),
+          child: Row(
+            children: [
+              Expanded(
+                child: dashboardCard("Volunteer"),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -129,6 +165,8 @@ class MobileLayout extends StatelessWidget {
       children: [
         dashboardCard("My Events"),
         const SizedBox(height: 16),
+        dashboardCard("Alerts"),
+        const SizedBox(height: 16),
         dashboardCard("Volunteer"),
       ],
     );
@@ -137,25 +175,38 @@ class MobileLayout extends StatelessWidget {
 
 Widget dashboardCard(String title) {
   return Container(
-    padding: const EdgeInsets.all(16),
     margin: const EdgeInsets.all(8),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
-        BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 2)),
+        BoxShadow(
+          color: Colors.grey.shade300,
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
       ],
     ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        const Text("(Content placeholder)")
-      ],
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "(Content placeholder)",
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     ),
   );
 }
