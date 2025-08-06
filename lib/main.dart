@@ -14,15 +14,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Your App',
-      theme: ThemeData(primarySwatch: Colors.deepPurple),
+      title: 'Technical Committee App',
+      theme: ThemeData (primarySwatch: Colors.blue),
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginScreen(),
-        '/student_dashboard': (context) => const StudentDashboard(),
+        '/student_dashboard': (context) => StudentDashboard(),
         '/teacher_dashboard': (context) => const TeacherDashboard(),
         '/leader_dashboard': (context) => const LeaderDashboard(),
       },
     );
   }
 }
+
+
