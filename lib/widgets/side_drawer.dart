@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SideDrawerMenu extends StatefulWidget {
-  const SideDrawerMenu({super.key});
+  final Function(int)? onItemSelected;
+
+  const SideDrawerMenu({super.key, this.onItemSelected});
 
   @override
   State<SideDrawerMenu> createState() => _SideDrawerMenuState();
@@ -39,6 +41,10 @@ class _SideDrawerMenuState extends State<SideDrawerMenu> {
                     setState(() {
                       selectedIndex = index;
                     });
+
+                    if (widget.onItemSelected != null) {
+                      widget.onItemSelected!(index);
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20),
