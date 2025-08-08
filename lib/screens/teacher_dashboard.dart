@@ -1,15 +1,32 @@
-import 'package:booktech_flutter/utils/responsive.dart';
-import 'package:booktech_flutter/utils/size.config.dart';
-import 'package:booktech_flutter/widgets/header_parts.dart';
-import 'package:booktech_flutter/widgets/side_drawer.dart';
 import 'package:flutter/material.dart';
-import 'package:booktech_flutter/screens/teacher_booking_form.dart';
-import 'package:booktech_flutter/utils/theme.dart';
+import '../models/bookings.dart';
+import '../widgets/my_bookings.dart';
+import '../widgets/all_events.dart';          
+import '../widgets/header_parts.dart';
+import '../widgets/side_drawer.dart';
+import '../utils/responsive.dart';
+import '../utils/size.config.dart';
+import '../utils/theme.dart';
+import 'teacher_booking_form.dart';
 
-class TeacherDashboard extends StatelessWidget {
+class TeacherDashboard extends StatefulWidget {
+  TeacherDashboard({super.key});
+
+  @override
+  State<TeacherDashboard> createState() => _TeacherDashboardState();
+}
+
+class _TeacherDashboardState extends State<TeacherDashboard> {
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey();
 
-  TeacherDashboard({super.key});
+  List<Booking> bookings = [];
+
+  // Add booking and update UI
+  void addBooking(Booking booking) {
+    setState(() {
+      bookings.add(booking);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +36,6 @@ class TeacherDashboard extends StatelessWidget {
       key: drawerKey,
       backgroundColor: MyAppColor.backgroundColor,
 
-      // Only show drawer on mobile/tablet
       drawer: !Responsive.isDesktop(context)
           ? SizedBox(
               width: 100,
@@ -28,15 +44,19 @@ class TeacherDashboard extends StatelessWidget {
                   if (index == 2) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => TeacherBookingForm()),
+                      MaterialPageRoute(
+                        builder: (context) => TeacherBookingForm(onBookingAdded: addBooking),
+                      ),
                     );
+                  } else {
+                    // Close drawer for other items
+                    Navigator.pop(context);
                   }
                 },
               ),
             )
           : null,
 
-      // AppBar for mobile/tablet
       appBar: !Responsive.isDesktop(context)
           ? AppBar(
               elevation: 0,
@@ -54,7 +74,6 @@ class TeacherDashboard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sidebar for desktop
             if (Responsive.isDesktop(context))
               Expanded(
                 flex: 1,
@@ -63,14 +82,15 @@ class TeacherDashboard extends StatelessWidget {
                     if (index == 2) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TeacherBookingForm()),
+                        MaterialPageRoute(
+                          builder: (context) => TeacherBookingForm(onBookingAdded: addBooking),
+                        ),
                       );
                     }
                   },
                 ),
               ),
 
-            // Main content
             Expanded(
               flex: 10,
               child: SingleChildScrollView(
@@ -78,21 +98,29 @@ class TeacherDashboard extends StatelessWidget {
                   horizontal: Responsive.isMobile(context) ? 20 : 40,
                   vertical: 10,
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    HeaderParts(),
-                    // More content here
+                    const HeaderParts(),
+
+                    const SizedBox(height: 24),
+
+                    const AllEventsWidget(),   
+
+                    const SizedBox(height: 24),
+
+                    MyBookingsWidget(bookings: bookings),
                   ],
                 ),
               ),
             ),
 
-            // Right-side panel
             if (Responsive.isDesktop(context))
-              const Expanded(
+               Expanded(
                 flex: 4,
-                child: SizedBox(), // Placeholder
+                child: Container(
+                  color: Colors.amber
+                ),
               ),
           ],
         ),
