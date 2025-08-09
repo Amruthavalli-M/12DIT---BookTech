@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/bookings.dart';
-import '../widgets/header_parts.dart';  // keep this import
+import '../widgets/header_parts.dart';  
 import '../widgets/side_drawer.dart';
 import '../utils/responsive.dart';
 import '../utils/size.config.dart';
 import '../utils/theme.dart';
 import 'package:booktech_flutter/widgets/teacher_form_body.dart';
+import 'package:booktech_flutter/screens/teacher_dashboard.dart';
 
 class TeacherBookingForm extends StatelessWidget {
   final void Function(Booking) onBookingAdded;
+  final int selectedIndex = 1; // Booking form is menu index 1
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey();
 
   TeacherBookingForm({super.key, required this.onBookingAdded});
@@ -25,9 +27,17 @@ class TeacherBookingForm extends StatelessWidget {
           ? SizedBox(
               width: 100,
               child: SideDrawerMenu(
+                selectedIndex: selectedIndex,
                 onItemSelected: (index) {
+                  if (index == selectedIndex) return;
+
                   if (index == 0) {
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TeacherDashboard(),
+                      ),
+                    );
                   }
                 },
               ),
@@ -55,9 +65,17 @@ class TeacherBookingForm extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: SideDrawerMenu(
+                  selectedIndex: selectedIndex,
                   onItemSelected: (index) {
+                    if (index == selectedIndex) return;
+
                     if (index == 0) {
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TeacherDashboard(),
+                        ),
+                      );
                     }
                   },
                 ),
@@ -84,7 +102,12 @@ class TeacherBookingForm extends StatelessWidget {
             if (Responsive.isDesktop(context))
               Expanded(
                 flex: 4,
-                child: Container(color: Colors.amber),
+                child: Image.asset(
+                  'assets/lightlogo.png',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                )
               ),
           ],
         ),
