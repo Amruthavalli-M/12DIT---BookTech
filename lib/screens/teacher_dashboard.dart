@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import '../models/bookings.dart';
 import '../widgets/my_bookings.dart';
 import '../widgets/all_events.dart';          
 import '../widgets/header_parts.dart';
 import '../widgets/side_drawer.dart';
+import '../widgets/notification_bar.dart';
 import '../utils/responsive.dart';
 import '../utils/size.config.dart';
 import '../utils/theme.dart';
 import 'teacher_booking_form.dart';
+import 'package:booktech_flutter/api/booking_storage.dart';  
 
 class TeacherDashboard extends StatefulWidget {
-  TeacherDashboard({super.key});
+  const TeacherDashboard({super.key});
 
   @override
   State<TeacherDashboard> createState() => _TeacherDashboardState();
@@ -21,11 +24,26 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
   List<Booking> bookings = [];
 
-  // Add booking and update UI
-  void addBooking(Booking booking) {
+  final BookingStorage storage = BookingStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBookings();
+  }
+
+  Future<void> _loadBookings() async {
+    final savedBookings = await storage.readBookings();
+    setState(() {
+      bookings = savedBookings;
+    });
+  }
+
+  void addBooking(Booking booking) async {
     setState(() {
       bookings.add(booking);
     });
+    await storage.writeBookings(bookings);
   }
 
   @override
@@ -41,7 +59,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               width: 100,
               child: SideDrawerMenu(
                 onItemSelected: (index) {
-                  if (index == 2) {
+                  if (index == 1) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -57,6 +75,14 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             )
           : null,
 
+      // endDrawer for notification panel on mobile/tablet
+      endDrawer: !Responsive.isDesktop(context)
+          ? Drawer(
+              child: const NotificationBar(),
+            )
+          : null,
+
+      // appBar to include notification icon on mobile/tablet
       appBar: !Responsive.isDesktop(context)
           ? AppBar(
               elevation: 0,
@@ -67,6 +93,20 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 },
                 icon: const Icon(Icons.menu, color: Colors.black),
               ),
+              actions: [
+                IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/dashboard/notification.svg',
+                    height: 24,
+                    width: 24,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    drawerKey.currentState!.openEndDrawer();
+                  },
+                ),
+                const SizedBox(width: 12),
+              ],
             )
           : null,
 
@@ -79,7 +119,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 flex: 1,
                 child: SideDrawerMenu(
                   onItemSelected: (index) {
-                    if (index == 2) {
+                    if (index == 1) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -115,12 +155,11 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               ),
             ),
 
+            // right notification panel on desktop
             if (Responsive.isDesktop(context))
-               Expanded(
+              const Expanded(
                 flex: 4,
-                child: Container(
-                  color: Colors.amber
-                ),
+                child: NotificationBar(),
               ),
           ],
         ),
