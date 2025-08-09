@@ -26,6 +26,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
   final BookingStorage storage = BookingStorage();
 
+  int selectedIndex = 0; // 0 = Dashboard
+
   @override
   void initState() {
     super.initState();
@@ -58,16 +60,22 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           ? SizedBox(
               width: 100,
               child: SideDrawerMenu(
+                selectedIndex: selectedIndex,
                 onItemSelected: (index) {
+                  if (index == selectedIndex) return; // do nothing if same
+
+                  setState(() {
+                    selectedIndex = index;
+                  });
+
                   if (index == 1) {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => TeacherBookingForm(onBookingAdded: addBooking),
                       ),
                     );
                   } else {
-                    // Close drawer for other items
                     Navigator.pop(context);
                   }
                 },
@@ -118,9 +126,16 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               Expanded(
                 flex: 1,
                 child: SideDrawerMenu(
+                  selectedIndex: selectedIndex,
                   onItemSelected: (index) {
+                    if (index == selectedIndex) return;
+
+                    setState(() {
+                      selectedIndex = index;
+                    });
+
                     if (index == 1) {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => TeacherBookingForm(onBookingAdded: addBooking),
@@ -155,7 +170,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               ),
             ),
 
-            // right notification panel on desktop
             if (Responsive.isDesktop(context))
               const Expanded(
                 flex: 4,
