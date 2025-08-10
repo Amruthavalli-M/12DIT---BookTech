@@ -13,54 +13,57 @@ class LeaderDashboard extends StatefulWidget {
 }
 
 class _LeaderDashboardState extends State<LeaderDashboard> {
+  // Key to control the Scaffold state 
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey();
 
-  int selectedIndex = 2; // Assuming 2 is the index for LeaderDashboard in your menuIcons list
+  // Tracks the currently selected menu item index (2 = LeaderDashboard)
+  int selectedIndex = 2;
 
   @override
   Widget build(BuildContext context) {
+    // Initialise SizeConfig for responsive layout calculations
     SizeConfig().init(context);
 
     return Scaffold(
       key: drawerKey,
       backgroundColor: MyAppColor.backgroundColor,
 
-      // Only show drawer on non-desktop (mobile/tablet)
+      // Drawer shown only on mobile/tablet (non-desktop)
       drawer: !Responsive.isDesktop(context)
           ? SizedBox(
-              width: 100, // Keep drawer narrow
+              width: 100, // Drawer width narrow for menu icons only
               child: SideDrawerMenu(
-                selectedIndex: selectedIndex,
+                selectedIndex: selectedIndex, // Pass current selection to highlight active item
                 onItemSelected: (index) {
-                  if (index == selectedIndex) return; // do nothing if already selected
+                  if (index == selectedIndex) return; // Ignore taps on the current item
 
                   setState(() {
-                    selectedIndex = index;
+                    selectedIndex = index; // Update selected index state
                   });
 
-                  // Navigate to appropriate screen based on index
+                  // Navigate to screens based on selected index
                   if (index == 0) {
                     Navigator.pushReplacementNamed(context, '/teacherDashboard');
                   } else if (index == 1) {
                     Navigator.pushReplacementNamed(context, '/teacherBookingForm');
                   } else if (index == 2) {
-                    // Already on LeaderDashboard, do nothing or maybe Navigator.pop
+                    // Already on LeaderDashboard, so just close the drawer
                     Navigator.pop(context);
                   }
-                  // Add other cases if you have more menu items
+                  // Additional menu item navigation cases can be added here if needed
                 },
               ),
             )
-          : null,
+          : null, // No drawer on desktop because sidebar is always visible
 
-      // Only show AppBar (hamburger) on mobile/tablet
+      // AppBar with hamburger menu only shown on mobile/tablet
       appBar: !Responsive.isDesktop(context)
           ? AppBar(
               elevation: 0,
               backgroundColor: Colors.white,
               leading: IconButton(
                 onPressed: () {
-                  drawerKey.currentState!.openDrawer();
+                  drawerKey.currentState!.openDrawer(); // Opens drawer when hamburger is pressed
                 },
                 icon: const Icon(
                   Icons.menu,
@@ -68,39 +71,40 @@ class _LeaderDashboardState extends State<LeaderDashboard> {
                 ),
               ),
             )
-          : null,
+          : null, // No AppBar on desktop, sidebar is permanent
 
       body: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sidebar only on desktop
+            // Sidebar menu shown only on desktop screens
             if (Responsive.isDesktop(context))
               Expanded(
-                flex: 1,
+                flex: 1, // Sidebar takes up 1 part of the horizontal space
                 child: SideDrawerMenu(
-                  selectedIndex: selectedIndex,
+                  selectedIndex: selectedIndex, // Highlight current active menu item
                   onItemSelected: (index) {
-                    if (index == selectedIndex) return;
+                    if (index == selectedIndex) return; // Ignore selecting current page
 
                     setState(() {
-                      selectedIndex = index;
+                      selectedIndex = index; // Update selected index
                     });
 
+                    // Navigate based on selected menu item
                     if (index == 0) {
                       Navigator.pushReplacementNamed(context, '/teacherDashboard');
                     } else if (index == 1) {
                       Navigator.pushReplacementNamed(context, '/teacherBookingForm');
                     } else if (index == 2) {
-                      // Already on LeaderDashboard, do nothing or Navigator.pop maybe
+                      // Already on LeaderDashboard, do nothing or optionally close any overlays
                     }
                   },
                 ),
               ),
 
-            // Main dashboard area
+            // Main content area of the dashboard
             Expanded(
-              flex: 10,
+              flex: 10, // Main content takes up 10 parts (larger area)
               child: SafeArea(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
@@ -110,20 +114,20 @@ class _LeaderDashboardState extends State<LeaderDashboard> {
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      HeaderParts(),
-                      // Add more content here
+                      HeaderParts(title: "Leader Dashboard"), // Header with dynamic title
+                      // Additional dashboard content can be added here
                     ],
                   ),
                 ),
               ),
             ),
 
-            // Right-side panel (desktop only)
+            // Right side panel shown only on desktop (flex: 4)
             if (Responsive.isDesktop(context))
               Expanded(
                 flex: 4,
                 child: Container(
-                  color: Colors.amber,
+                  color: Colors.amber, // Placeholder color for right panel
                 ),
               ),
           ],
