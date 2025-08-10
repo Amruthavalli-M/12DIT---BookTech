@@ -1,10 +1,14 @@
-import 'package:booktech_flutter/utils/responsive.dart';
-import 'package:booktech_flutter/utils/size.config.dart';
-import 'package:booktech_flutter/widgets/header_parts.dart';
-import 'package:booktech_flutter/widgets/side_drawer.dart';
+import 'package:booktech_flutter/utils/responsive.dart';  // Responsive helper for screen size checks
+import 'package:booktech_flutter/utils/size.config.dart'; // Size configuration utility
+import 'package:booktech_flutter/widgets/header_parts.dart'; // Header widget
+import 'package:booktech_flutter/widgets/side_drawer.dart'; // Side drawer menu widget
 import 'package:flutter/material.dart';
-import 'package:booktech_flutter/utils/theme.dart';
+import 'package:booktech_flutter/utils/theme.dart'; // App color/theme definitions
+import 'package:booktech_flutter/widgets/all_events.dart'; // Widget showing all events
+import 'package:booktech_flutter/widgets/my_events.dart';  // Widget showing user's personal events
+import 'package:booktech_flutter/widgets/volunteer.dart';  // Widget showing volunteer options
 
+// Main Stateful widget for the Student Dashboard screen
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
 
@@ -13,118 +17,140 @@ class StudentDashboard extends StatefulWidget {
 }
 
 class _StudentDashboardState extends State<StudentDashboard> {
+  // Key to control the Scaffold, mainly to open/close the drawer programmatically
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey();
 
-  int selectedIndex = 0; // Assuming 0 is StudentDashboard index
+  // Tracks which menu item is currently selected in the SideDrawerMenu
+  int selectedIndex = 0; // 0 is assumed to be the StudentDashboard index
 
   @override
   Widget build(BuildContext context) {
+    // Initialize SizeConfig for responsive sizing utilities
     SizeConfig().init(context);
 
     return Scaffold(
-      key: drawerKey,
+      key: drawerKey, // Assign the scaffold key
+
+      // Set background color from app theme
       backgroundColor: MyAppColor.backgroundColor,
 
-      // Only show drawer on non-desktop (mobile/tablet)
+      // Show side drawer only on smaller screens (mobile/tablet)
       drawer: !Responsive.isDesktop(context)
           ? SizedBox(
-              width: 100, // Keep drawer narrow
+              width: 100, // Keep drawer narrow on smaller devices
               child: SideDrawerMenu(
-                selectedIndex: selectedIndex,
+                selectedIndex: selectedIndex, // Highlight the current menu item
                 onItemSelected: (index) {
-                  if (index == selectedIndex) return; // already selected
+                  if (index == selectedIndex) return; // If tapped current, do nothing
 
                   setState(() {
-                    selectedIndex = index;
+                    selectedIndex = index; // Update the selected index to highlight
                   });
 
-                  // Navigate based on index, example:
+                  // Navigate to the corresponding screen based on tapped index
                   if (index == 0) {
-                    // Already on StudentDashboard, just close drawer
+                    // For student dashboard - just close drawer since we are here
                     Navigator.pop(context);
                   } else if (index == 1) {
+                    // Navigate to teacher dashboard
                     Navigator.pushReplacementNamed(context, '/teacherDashboard');
                   } else if (index == 2) {
+                    // Navigate to leader dashboard
                     Navigator.pushReplacementNamed(context, '/leaderDashboard');
                   }
-                  // add more as needed
                 },
               ),
             )
-          : null,
+          : null, // No drawer on desktop - sidebar used instead
 
-      // Only show AppBar (hamburger) on mobile/tablet
+      // Show AppBar with hamburger menu only on non-desktop devices
       appBar: !Responsive.isDesktop(context)
           ? AppBar(
-              elevation: 0,
-              backgroundColor: Colors.white,
+              elevation: 0, // Flat app bar
+              backgroundColor: Colors.white, // White background
               leading: IconButton(
                 onPressed: () {
-                  drawerKey.currentState!.openDrawer();
+                  drawerKey.currentState!.openDrawer(); // Open drawer when tapped
                 },
                 icon: const Icon(
                   Icons.menu,
-                  color: Colors.black,
+                  color: Colors.black, // Black icon color for contrast
                 ),
               ),
             )
-          : null,
+          : null, // No app bar on desktop
 
+      // Main content area of the dashboard
       body: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sidebar only on desktop
+            // Sidebar menu shown only on desktop with selectedIndex and onItemSelected
             if (Responsive.isDesktop(context))
               Expanded(
-                flex: 1,
+                flex: 1, // Sidebar takes up 1 part of width ratio
                 child: SideDrawerMenu(
-                  selectedIndex: selectedIndex,
+                  selectedIndex: selectedIndex, // Highlight current menu item
                   onItemSelected: (index) {
-                    if (index == selectedIndex) return;
+                    if (index == selectedIndex) return; // Do nothing if already selected
 
                     setState(() {
-                      selectedIndex = index;
+                      selectedIndex = index; // Update selection highlight
                     });
 
+                    // Navigate to different screens based on tapped index
                     if (index == 0) {
-                      // Already on StudentDashboard, no navigation needed
+                      // Already on student dashboard, so no navigation needed
                     } else if (index == 1) {
                       Navigator.pushReplacementNamed(context, '/teacherDashboard');
                     } else if (index == 2) {
                       Navigator.pushReplacementNamed(context, '/leaderDashboard');
                     }
-                    // Add more if needed
                   },
                 ),
               ),
 
-            // Main dashboard area
+            // Main dashboard content area, takes majority of width (flex:10)
             Expanded(
               flex: 10,
               child: SafeArea(
                 child: SingleChildScrollView(
+                  // Padding adjusts for mobile vs larger screens
                   padding: EdgeInsets.symmetric(
                     horizontal: Responsive.isMobile(context) ? 20 : 40,
                     vertical: 10,
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      HeaderParts(),
-                      // Add your Student Dashboard content here
+                    children: const [
+                      // Header showing the dashboard title and subtitle
+                      HeaderParts(title: "Student Dashboard"),
+                      SizedBox(height: 24),
+
+                      // Volunteer widget placeholder (empty for now)
+                      VolunteerWidget(),
+                      SizedBox(height: 24),
+
+                      // My Events widget placeholder (empty for now)
+                      MyEventsWidget(),
+                      SizedBox(height: 24),
+
+                      // All Events widget shows all events available
+                      AllEventsWidget(),
+
+                      // Additional Student Dashboard widgets can be added here
                     ],
                   ),
                 ),
               ),
             ),
 
-            // Right-side panel (desktop only)
+            // Right panel for desktop layout only
             if (Responsive.isDesktop(context))
               Expanded(
                 flex: 4,
                 child: Container(
-                  color: Colors.amber,
+                  color: Colors.amber, // Placeholder background color for now
                 ),
               ),
           ],
