@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// Side navigation drawer used in the app.
-/// Shows a vertical list of menu icons with a visual highlight for the selected one.
-/// Supports an `onItemSelected` to tell the parent which menu item was tapped.
+/// Shows a vertical list of menu icons with active selection
 class SideDrawerMenu extends StatelessWidget {
   /// Function to run when a menu item is tapped passes the tapped item's index.
   final Function(int)? onItemSelected;
 
-  /// The index of the currently selected menu item (controlled by parent)
+  /// The index of the currently selected menu item 
   final int selectedIndex;
 
   const SideDrawerMenu({
@@ -25,9 +24,9 @@ class SideDrawerMenu extends StatelessWidget {
       elevation: 0, // No shadow around the drawer
       child: Container(
         // Drawer background color from theme
-        decoration: const BoxDecoration(color: MyAppColor.secondaryBg),
+        decoration: const BoxDecoration(color: MyAppColor.barBg),
         child: SingleChildScrollView(
-          // Allows scrolling if there are many menu items
+          // Scrolling if there are many menu items
           child: Column(
             children: [
               const SizedBox(height: 20),
@@ -51,6 +50,9 @@ class SideDrawerMenu extends StatelessWidget {
                     if (onItemSelected != null) {
                       onItemSelected!(index);
                     }
+                    if (index == 2) {
+                      Navigator.pushReplacementNamed(context, '/');
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 20),
@@ -72,7 +74,7 @@ class SideDrawerMenu extends StatelessWidget {
                           ),
                         ),
 
-                        // Thin right side bar showing the active selection
+                        // Active selection bar
                         Container(
                           height: 40,
                           width: 3,
