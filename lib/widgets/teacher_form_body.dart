@@ -1,3 +1,6 @@
+import 'package:booktech_flutter/api/booking_storage.dart';
+import 'package:booktech_flutter/screens/teacher_dashboard.dart';
+import 'package:booktech_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import '../models/bookings.dart';
 
@@ -10,9 +13,14 @@ class TeacherFormBody extends StatefulWidget {
   State<TeacherFormBody> createState() => _TeacherFormBodyState();
 }
 
+/// Stateful widget for teacher booking form
+/// Allows teachers to submit tech assistance requests for events
 class _TeacherFormBodyState extends State<TeacherFormBody> {
+  // Callback funtion to notifyparent widget when new booking
   final _formKey = GlobalKey<FormState>();
 
+
+// Form fields
   String staffCode = '';
   String staffName = '';
   String dateOfEvent = '';
@@ -22,7 +30,12 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
   String eventType = '';
   String techAssistance = '';
   String photographerRequired = 'No';
+  
 
+  // ========================= Validation Methods =========================
+
+
+// Staff Code Validation
   String? _validateStaffCode(String? value) {
     if (value == null || value.isEmpty) return 'Required';
     if (!RegExp(r'^[A-Za-z]{3}$').hasMatch(value)) {
@@ -31,21 +44,44 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
     return null;
   }
 
+// Staff Name Validation
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) return 'Required';
     if (!RegExp(r'^[A-Za-z ]+$').hasMatch(value)) {
       return 'Name cannot contain numbers or special characters';
     }
+
+    if (value.length > 50) {
+      return 'Name must be under 50 characters';
+    } 
+
+    if (value.length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+
     return null;
   }
 
+// Date Validation
   String? _validateDate(String? value) {
     if (value == null || value.isEmpty) return 'Required';
 
+    // Check for letters
+    if (RegExp(r'[A-Za-z]').hasMatch(value)) {
+      return 'Date cannot contain letters';
+    }
+
+    // Check for special characters other than slash and digits
+    if (RegExp(r'[^0-9/]').hasMatch(value)) {
+      return 'Date cannot contain special characters';
+    }
+
+    // Check for date format
     if (!RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(value)) {
       return 'Date must be in dd/mm/yyyy format';
     }
 
+    // Check for valid date
     try {
       final parts = value.split('/');
       final day = int.parse(parts[0]);
@@ -62,23 +98,112 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
     return null;
   }
 
-  String? _validateTime(String? value) {
+  // Variabes for time
+  final _startTimeController = TextEditingController();
+  final _endTimeController = TextEditingController();
+
+// Time Validation
+  String? _validateTime(String? value, {bool isEndTime = false}) {
     if (value == null || value.isEmpty) return 'Required';
 
+    // Check for letters
+    if (RegExp(r'[A-Za-z]').hasMatch(value)) {
+      return 'Time cannot contain letters';
+    }
+
+     // Check for special characters other than colon
+    if (RegExp(r'[^0-9:]').hasMatch(value)) {
+      return 'Time cannot contain special characters';
+    }
+
+    // Format Checker
     if (!RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$').hasMatch(value)) {
       return 'Time must be in HH:mm 24-hour format';
     }
+
+    // Rule for end time: at least 30 mins later than start
+    if (isEndTime && _startTimeController.text.isNotEmpty) {
+      try {
+        final startParts = _startTimeController.text.split(':').map(int.parse).toList();
+        final endParts = value.split(':').map(int.parse).toList();
+
+        final startMinutes = startParts[0] * 60 + startParts[1];
+        final endMinutes = endParts[0] * 60 + endParts[1];
+
+        if (endMinutes - startMinutes < 30) {
+          return 'Booking must be at least 30 minutes long';
+        }
+      } catch (e) {
+        return 'Invalid time format';
+      }
+    }
+    
     return null;
   }
 
-  String? _validateNoDigits(String? value) {
+
+  // Venue Validation
+  String? _validateVenue(String? value) {
+    if (value == null || value.isEmpty) return 'Required';
+
+    // Reject digits
+    if (RegExp(r'\d').hasMatch(value)) {
+      return 'Venue does not accept integers';
+    }
+
+    // Reject special characters (anything except letters and spaces)
+    if (!RegExp(r'^[A-Za-z ]+$').hasMatch(value)) {
+      return 'Venue cannot contain special characters';
+    }
+
+    if (value.length > 50) {
+      return 'Venue must be under 50 characters';
+    }
+
+    if (value.length < 3) {
+      return 'Venue must be at least 3 characters';
+    }
+
+    return null;
+  }
+
+  // Event Type Validation
+  String? _validateEventType(String? value) {
     if (value == null || value.isEmpty) return 'Required';
 
     if (RegExp(r'\d').hasMatch(value)) {
-      return 'Does not accept integers';
+      return 'Event type cannot contain numbers';
     }
+
+    if (!RegExp(r'^[A-Za-z ]+$').hasMatch(value)) {
+      return 'Event type cannot contain special characters';
+    }
+
+    if (value.length > 50) {
+      return 'Event Type must be under 50 characters';
+    }
+
+    if (value.length < 3) {
+      return 'Event Type must be at least 3 characters';
+    }
+
     return null;
   }
+
+// Requirements Validation
+String? _validateTech(String? value) {
+  if (value == null || value.isEmpty) return 'Required';
+
+  if (value.length > 500) {
+    return 'You have exceeded the limit of 500 characters';
+  }
+
+  if (value.length < 50) {
+    return 'Please write a minimum of 50 characters';
+  }
+  return null;
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,29 +242,31 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
 
             _buildTextField(
               "Start Time (HH:mm)",
+              controller: _startTimeController,
               onSaved: (val) => startTime = val!,
-              validator: _validateTime,
+              validator: (value) => _validateTime(value),
             ),
             const SizedBox(height: 20),
 
             _buildTextField(
               "End Time (HH:mm)",
+              controller: _endTimeController,
               onSaved: (val) => endTime = val!,
-              validator: _validateTime,
+              validator: (value) => _validateTime(value, isEndTime: true),
             ),
             const SizedBox(height: 20),
 
             _buildTextField(
               "Venue",
               onSaved: (val) => venue = val!,
-              validator: _validateNoDigits,
+              validator: _validateVenue,
             ),
             const SizedBox(height: 20),
 
             _buildTextField(
               "Event Type",
               onSaved: (val) => eventType = val!,
-              validator: _validateNoDigits,
+              validator: _validateEventType,
             ),
             const SizedBox(height: 20),
 
@@ -147,7 +274,7 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
               "Technical Assistance Requirements",
               maxLines: 4,
               onSaved: (val) => techAssistance = val!,
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              validator: _validateTech,
             ),
             const SizedBox(height: 20),
 
@@ -172,7 +299,7 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
 
             Center(
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
 
@@ -188,6 +315,12 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
                       photographerRequired: photographerRequired,
                     );
 
+                    // Save to persistent storage
+                    final storage = BookingStorage();
+                    List<Booking> currentBookings = await storage.readBookings();
+                    currentBookings.add(newBooking);
+                    await storage.writeBookings(currentBookings);
+
                     widget.onBookingAdded(newBooking);
 
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -200,7 +333,12 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
                       photographerRequired = 'No';
                     });
 
-                    Navigator.of(context).pop(); // POP back to TeacherDashboard
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TeacherDashboard(),
+                      ),
+                    );
                   }
                 },
                 child: const Padding(
@@ -208,7 +346,7 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
                   child: Text("Submit"),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -218,15 +356,24 @@ class _TeacherFormBodyState extends State<TeacherFormBody> {
   Widget _buildTextField(
     String label, {
     int maxLines = 1,
+    TextEditingController? controller,
     required FormFieldSetter<String> onSaved,
     FormFieldValidator<String>? validator,
   }) {
     return TextFormField(
+      controller: controller,
       onSaved: onSaved,
       maxLines: maxLines,
+      autovalidateMode: AutovalidateMode.onUserInteraction, // I added this line
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: MyAppColor.primary,
+            width: 2,
+          ),
+        ),
       ),
       validator: validator ?? (value) => value == null || value.isEmpty ? 'Required' : null,
     );
