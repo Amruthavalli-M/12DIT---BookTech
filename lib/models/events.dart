@@ -35,5 +35,3 @@ final List<Event> allEvents = [
     isAssembly: true,
   ),
 ];
-
-
