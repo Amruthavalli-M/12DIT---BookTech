@@ -9,29 +9,31 @@ import 'package:booktech_flutter/widgets/teacher_form_body.dart';
 import 'package:booktech_flutter/screens/teacher_dashboard.dart';
 
 class TeacherBookingForm extends StatelessWidget {
-  final void Function(Booking) onBookingAdded;
+  final void Function(Booking) onBookingAdded; // Callback to add a booking
   final int selectedIndex = 1; // Booking form is menu index 1
-  final GlobalKey<ScaffoldState> drawerKey = GlobalKey();
+  final GlobalKey<ScaffoldState> drawerKey = GlobalKey(); // Control side drawers
 
   TeacherBookingForm({super.key, required this.onBookingAdded});
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context);
+    SizeConfig().init(context); // Initialise screen size
 
     return Scaffold(
       key: drawerKey,
       backgroundColor: MyAppColor.backgroundColor,
 
+      // Left menu drawer for mobile/tablet
       drawer: !Responsive.isDesktop(context)
           ? SizedBox(
               width: 100,
               child: SideDrawerMenu(
                 selectedIndex: selectedIndex,
                 onItemSelected: (index) {
-                  if (index == selectedIndex) return;
+                  if (index == selectedIndex) return; // Ignore if already selected
 
                   if (index == 0) {
+                    // Go back to Teacher Dashboard
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -44,13 +46,14 @@ class TeacherBookingForm extends StatelessWidget {
             )
           : null,
 
+      // App bar only for mobile/tablet
       appBar: !Responsive.isDesktop(context)
           ? AppBar(
               elevation: 0,
               backgroundColor: Colors.white,
               leading: IconButton(
                 onPressed: () {
-                  drawerKey.currentState!.openDrawer();
+                  drawerKey.currentState!.openDrawer(); // Open left menu
                 },
                 icon: const Icon(Icons.menu, color: Colors.black),
               ),
@@ -61,13 +64,14 @@ class TeacherBookingForm extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Desktop sidebar menu
             if (Responsive.isDesktop(context))
               Expanded(
                 flex: 1,
                 child: SideDrawerMenu(
                   selectedIndex: selectedIndex,
                   onItemSelected: (index) {
-                    if (index == selectedIndex) return;
+                    if (index == selectedIndex) return; // Ignore if already selected
 
                     if (index == 0) {
                       Navigator.pushReplacement(
@@ -81,6 +85,7 @@ class TeacherBookingForm extends StatelessWidget {
                 ),
               ),
 
+            // Main form content
             Expanded(
               flex: 10,
               child: SingleChildScrollView(
@@ -91,19 +96,20 @@ class TeacherBookingForm extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const HeaderParts(), // <--- HERE IT IS!
+                    const HeaderParts(title: "Teacher Dashboard"), // Heading
                     const SizedBox(height: 24),
-                    TeacherFormBody(onBookingAdded: onBookingAdded),
+                    TeacherFormBody(onBookingAdded: onBookingAdded), // Form content
                   ],
                 ),
               ),
             ),
 
+            // Desktop right panel: infographic
             if (Responsive.isDesktop(context))
               Expanded(
                 flex: 4,
                 child: Image.asset(
-                  'assets/lightlogo.png',
+                  'assets/infographic.png',
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
