@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart'; // For rendering SVG images (used for notification icon)
-import '../models/bookings.dart'; // Booking data model
-import '../widgets/my_bookings.dart'; // Widget that displays teacher's own bookings
-import '../widgets/all_events.dart'; // Widget that displays all events available
-import '../widgets/header_parts.dart'; // Custom header widget for page title/subtitle
-import '../widgets/side_drawer.dart'; // Sidebar menu navigation widget
-import '../widgets/notification_bar.dart'; // Notifications panel widget
-import '../utils/responsive.dart'; // Utility for checking if device is desktop/tablet/mobile
-import '../utils/size.config.dart'; // Utility for handling responsive sizing
-import '../utils/theme.dart'; // Centralized color/theme definitions
-import 'teacher_booking_form.dart'; // Teacher booking form screen
-import 'package:booktech_flutter/api/booking_storage.dart'; // Persistent booking storage handler
+import 'package:flutter_svg/svg.dart';
+import '../models/bookings.dart';
+import '../widgets/my_bookings.dart';
+import '../widgets/all_events.dart';          
+import '../widgets/header_parts.dart';
+import '../widgets/side_drawer.dart';
+import '../widgets/notification_bar.dart';
+import '../utils/responsive.dart';
+import '../utils/size.config.dart';
+import '../utils/theme.dart';
+import 'teacher_booking_form.dart';
+import 'package:booktech_flutter/api/booking_storage.dart';  
 
+
+/// Main dashboard screen for Teachers
+/// Displays events, bookings and notifications
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
 
@@ -20,63 +23,65 @@ class TeacherDashboard extends StatefulWidget {
 }
 
 class _TeacherDashboardState extends State<TeacherDashboard> {
-  // Key to control the Scaffold (allows opening/closing drawers programmatically)
+  // Controls the scaffold
   final GlobalKey<ScaffoldState> drawerKey = GlobalKey();
 
-  // Stores the list of bookings for this teacher (loaded from persistent storage)
+  // List of booking objects representing bookings for teachers
   List<Booking> bookings = [];
 
-  // Storage helper for reading/writing bookings to persistent storage
+  // Reads and writes bookings to storage JSON
   final BookingStorage storage = BookingStorage();
 
-  // Tracks which item in the side menu is currently selected (0 = Dashboard, 1 = Booking Form, etc.)
-  int selectedIndex = 0;
+  // Tracks which item in side bar is selected
+  int selectedIndex = 0; // 0 = Dashboard
 
   @override
   void initState() {
     super.initState();
-    _loadBookings(); // Load any saved bookings as soon as dashboard is created
+    _loadBookings(); // Load bookings from storage when dashboard initialises
   }
 
-  // Loads saved bookings from storage asynchronously
+  /// Loads saved bookings from storage
+  /// Updates the local bookings list and refreshes UI
   Future<void> _loadBookings() async {
-    final savedBookings = await storage.readBookings(); // Read from storage
+    final savedBookings = await storage.readBookings();
     setState(() {
-      bookings = savedBookings; // Update local list and rebuild UI
+      bookings = savedBookings;
     });
   }
 
-  // Adds a new booking both locally and to persistent storage
+  /// Adds a new booking to the list and saves it to storage
   void addBooking(Booking booking) async {
     setState(() {
-      bookings.add(booking); // Add to in-memory list and refresh UI
+      bookings.add(booking);
     });
-    await storage.writeBookings(bookings); // Save updated list to storage
+    await storage.writeBookings(bookings);
   }
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig().init(context); // Prepare responsive size calculations
+    // Initialises responsive size 
+    SizeConfig().init(context);
 
     return Scaffold(
-      key: drawerKey, // Needed for programmatic drawer opening
-      backgroundColor: MyAppColor.backgroundColor, // Set background from theme
+      key: drawerKey,
+      backgroundColor: MyAppColor.backgroundColor, 
 
-      // MOBILE/TABLET: Side navigation is shown as a drawer
       drawer: !Responsive.isDesktop(context)
           ? SizedBox(
-              width: 100, // Narrow fixed-width drawer
+              width: 100,
               child: SideDrawerMenu(
-                selectedIndex: selectedIndex, // Highlight active menu
+                selectedIndex: selectedIndex, // Highlights selected item
                 onItemSelected: (index) {
-                  if (index == selectedIndex) return; // Do nothing if same item tapped
+                  if (index == selectedIndex) return; // Do nothing if same
 
                   setState(() {
-                    selectedIndex = index; // Change active menu index
+                    selectedIndex = index; // Update active selection
                   });
 
+                  // Navigate based on selected menu item
                   if (index == 1) {
-                    // If booking form selected, navigate to booking form screen
+                    // Navigate to TeacherBookingForm when index 1 is selected
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -84,25 +89,26 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                       ),
                     );
                   } else {
-                    // Other pages — just close the drawer
+                    // Close drawer for other selections
                     Navigator.pop(context);
                   }
                 },
               ),
             )
-          : null, // DESKTOP: Drawer not needed because permanent sidebar used
+          : null,
 
-      // MOBILE/TABLET: Notifications are in an end drawer (right side)
+      // endDrawer for notification panel on mobile/tablet
       endDrawer: !Responsive.isDesktop(context)
           ? Drawer(
-              child: const NotificationBar(), // Shows notification content
+              child: const NotificationBar(),
             )
           : null,
 
-      // MOBILE/TABLET: App bar with hamburger and notification icon
+      /// AppBar for mobile/tablet
+      /// Contains hamburger and noticiatoin icon
       appBar: !Responsive.isDesktop(context)
           ? AppBar(
-              elevation: 0, // No shadow
+              elevation: 0,
               backgroundColor: Colors.white,
               leading: IconButton(
                 onPressed: () {
@@ -111,43 +117,43 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 icon: const Icon(Icons.menu, color: Colors.black),
               ),
               actions: [
-                // Notification bell icon
+                // Notification icon opens endDrawer
                 IconButton(
                   icon: SvgPicture.asset(
-                    'assets/dashboard/notification.svg', // Notification bell SVG
+                    'assets/dashboard/notification.svg',
                     height: 24,
                     width: 24,
                     color: Colors.black,
                   ),
                   onPressed: () {
-                    drawerKey.currentState!.openEndDrawer(); // Open notifications drawer
+                    drawerKey.currentState!.openEndDrawer();
                   },
                 ),
-                const SizedBox(width: 12), // Extra spacing
+                const SizedBox(width: 12), // Spacing from edge
               ],
             )
-          : null, // DESKTOP: App bar not used
+          : null,
 
-      // MAIN DASHBOARD BODY
+      /// Main dashboard body
       body: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // DESKTOP: Left-hand permanent sidebar
+            // Sidebar for desktop view
             if (Responsive.isDesktop(context))
               Expanded(
-                flex: 1, // Sidebar takes 1/15 of width
+                flex: 1,
                 child: SideDrawerMenu(
-                  selectedIndex: selectedIndex, // Highlight current page
+                  selectedIndex: selectedIndex,
                   onItemSelected: (index) {
-                    if (index == selectedIndex) return; // Ignore if same page clicked
+                    if (index == selectedIndex) return; // Already active
 
                     setState(() {
-                      selectedIndex = index; // Change active page
+                      selectedIndex = index; // Update selected menu item
                     });
 
+                    // Navigate to TeacherBookingForm if index 1 selected
                     if (index == 1) {
-                      // Navigate to booking form on desktop
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -159,38 +165,38 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ),
               ),
 
-            // MAIN CONTENT AREA (middle section)
+            // Main content area
             Expanded(
-              flex: 10, // Main area is largest
+              flex: 10,
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
-                  horizontal: Responsive.isMobile(context) ? 20 : 40, // Adjust for screen size
+                  horizontal: Responsive.isMobile(context) ? 20 : 40,
                   vertical: 10,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Page header
+                    // Header showing dashboard title and subtitle
                     const HeaderParts(title: 'Teacher Dashboard'),
-
+                    
                     const SizedBox(height: 24),
 
-                    // All available events
-                    const AllEventsWidget(),
+                    // All events read only
+                    const AllEventsWidget(),   
 
                     const SizedBox(height: 24),
-
-                    // Teacher's own bookings list
+                    
+                    // Teacher bookings (My bookings)
                     MyBookingsWidget(bookings: bookings),
                   ],
                 ),
               ),
             ),
 
-            // DESKTOP: Right-hand notification panel
+            // Desktop notification panel
             if (Responsive.isDesktop(context))
               const Expanded(
-                flex: 4, // Right column for notifications
+                flex: 4,
                 child: NotificationBar(),
               ),
           ],
