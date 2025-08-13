@@ -8,7 +8,7 @@ class NotificationBar extends StatelessWidget {
     return Drawer(
       elevation: 0,
       child: Container(
-        color: Colors.amber, // Same as your amber container
+        color: Colors.amber, // amber container
         width: double.infinity,
         height: double.infinity,
       ),
