@@ -1,6 +1,6 @@
 // lib/models/users.dart
 
-/// A simple list of mock user data for local authentication.
+/// A simple list of user data for local authentication.
 /// Each map represents a user with a username, password, and role.
 /// In a real application, this data would be fetched securely from a backend.
 final List<Map<String, String>> mockUsers = [
@@ -33,3 +33,5 @@ final List<Map<String, String>> mockUsers = [
   {'username': '21134', 'password': 'password123', 'role': 'student'},
   {'username': '22240', 'password': 'password123', 'role': 'student'},
 ];
+
+
