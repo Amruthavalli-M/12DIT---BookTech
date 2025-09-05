@@ -1,50 +1,39 @@
-Getting Started 
-Step 1: Install Flutter SDK
-Head over to flutter.dev and follow the instructions for your operating system (Windows, macOS, Linux).
 
-The Flutter install guide is easy and explains everything, including how to set up environment variables.
+BookTech: EGGS Tech Committee App
 
-When you’re done, open a terminal (or command prompt) and run:
-
-flutter doctor
-
-This command checks if your system is ready for Flutter development and tells you what else you might need (like Android Studio or Xcode).
-
-Step 2: Get an IDE (Optional but recommended)
-While you can use any text editor, I recommend using either:
-
-Visual Studio Code with the Flutter and Dart extensions installed, or
-Android Studio with Flutter plugin.
-
-These tools make it easier to run the app. 
-
-Step 3: Clone this project
-If you don’t have the project files yet, clone them from the repo:
-
-gh repo clone Amruthavalli-M/12DIT---BookTech
+Overview
+BookTech is our scheduling and booking app for the Epsom Girls Grammar School Tech Committee.
+It’s here to make booking events, assigning techs, and staying on top of what’s happening a whole lot easier.
 
 
-Then, locate to it by: 
-cd booktech_flutter
+HOW TO INSTALL (ONLY WINDOWS EDITION)
+ Step 1: 
+ Navigate to the google drive of my project, named: MADHUSUDHAN, Amrutha - 12 DIT Project (AS91896 & 91897)
 
+ Step 2: 
+ Inside this folder, navigate to the folder called: FINAL APP
+    YOU WILL FIND A FILE CALLED: Release.zip
+    DOWNLOAD THIS ZIP. THEN EXTRACT CONTENTS.
 
-Step 4: Fetch dependencies
-Run this in your project folder to download the packages the app needs:
+ Step 3: 
+Once extracted, head into the Release folder. 
+Once in the folder, you should see 3 contents. Data folder, booktech_flutter and flutter_windows.dll.
 
-flutter pub get
+PLEASE DOUBLE CLICK booktech_flutter. 
 
+If Windows shows “Windows protected your PC” (SmartScreen) -> click More info -> Run anyway.
 
-Step 5: Run the app
-For my best version, when you run the command below: select 1, the vindows version. 
+ Step 4: 
+ DONE!! Please use the login info below to start. 
 
+Requirements
+- Windows 10 or newer (64-bit)
+- About 200 MB free space
+- Internet connection for syncing
 
-flutter run
-
-This will build and launch the app on your connected device.
-
-Notes
-This app currently stores booking data locally on your device.
-The UI adapts to screen size, so you can test on phones, tablets, or desktop.
+Data
+Some data is saved locally in JSON files, but your account data is synced with the server.
+No file associations are set up.
 
 ========== LOGIN ==========
 
